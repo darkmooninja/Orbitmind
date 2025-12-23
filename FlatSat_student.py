@@ -22,9 +22,9 @@ from git import Repo
 from picamera2 import Picamera2
 
 #VARIABLES
-THRESHOLD = 0      #Any desired value from the accelerometer
+THRESHOLD = 4      #Any desired value from the accelerometer
 REPO_PATH = "/home/pi/Orbitmind"     #Your github repo path: ex. /home/pi/FlatSatChallenge
-FOLDER_PATH = "/Images"   #Your image folder path in your GitHub repo: ex. /Images
+FOLDER_PATH = "Images"   #Your image folder path in your GitHub repo: ex. /Images
 
 #imu and camera initialization
 i2c = board.I2C()
@@ -69,6 +69,7 @@ def take_photo():
     This function is NOT complete. Takes a photo when the FlatSat is shaken.
     Replace psuedocode with your own code.
     """
+    picam2.start()
     while True:
         accel_x, accel_y, accel_z = accel_gyro.acceleration
         magnitude = (accel_x**2 + accel_y**2 + accel_z**2) ** 0.5
@@ -80,7 +81,7 @@ def take_photo():
             name = "Test"
             photo_name = img_gen(name)
 
-            picam2.start()
+
             image = picam2.capture_image("main")
             image.save(photo_name)
             git_push()
@@ -91,6 +92,7 @@ def take_photo():
             break
         
         #PAUSE
+    picam2.stop()
 
 
 def main():
