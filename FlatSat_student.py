@@ -107,12 +107,22 @@ def main():
 
 def hsv(image):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    avg_hsv = np.mean(hsv_image, axis=(0, 1))
-    h, s, v = avg_hsv
-    hue_degrees = h * 2
-    sat_percent = (s / 255) * 100
-    val_percent = (v / 255) * 100
-    print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
+    height, width, _ = hsv_image.shape
+    midy, midx = height // 2, width // 2
+    quadrants = {
+        "Top-Left":     hsv_image[0:midy, 0:midx],
+        "Top-Right":    hsv_image[0:midy, midx:width],
+        "Bottom-Left":  hsv_image[midy:height, 0:midx],
+        "Bottom-Right": hsv_image[midy:height, midx:width]
+    }
+    for name, quad_data in quadrants.items():
+        avg_hsv = np.mean(quad_data, axis=(0, 1))
+        h, s, v = avg_hsv
+        hue_degrees = h * 2
+        sat_percent = (s / 255) * 100
+        val_percent = (v / 255) * 100
+        print(f"{name}:")
+        print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
     
 
 
