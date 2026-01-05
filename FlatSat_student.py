@@ -85,6 +85,9 @@ def take_photo():
 
 
             image = picam2.capture_image("main")
+            image_array = picam2.capture_array("main")
+
+
             hsv_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
             avg_hsv = np.mean(hsv_image, axis=(0, 1))
             h, s, v = avg_hsv
