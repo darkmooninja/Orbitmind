@@ -16,6 +16,8 @@ You will need to complete the take_photo() function and configure the VARIABLES 
 #import libraries
 import time
 import board
+import cv2
+import numpy as np
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX as LSM6DS
 from adafruit_lis3mdl import LIS3MDL
 from git import Repo
@@ -83,6 +85,11 @@ def take_photo():
 
 
             image = picam2.capture_image("main")
+            hsv_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
+            avg_hsv = np.mean(hsv_image, axis=(0, 1))
+            h, s, v = avg_hsv
+            
+            print(f"Average HSV - Hue: {h:.2f}, Saturation: {s:.2f}, Value: {v:.2f}")
             image.save(photo_name)
             git_push()
             print("picture done")
