@@ -90,32 +90,36 @@ def take_photo():
 
             
             image.save(photo_name)
-            git_push()
             print("picture done")
             picam2.stop()
             #PUSH PHOTO TO GITHUB
             time.sleep(1)  # debounce
-            return image_array
+            return image_array, photo_name
         
         #PAUSE
     picam2.stop()
 
 
 def main():
-    image_arr = take_photo()
-    hsv(image_arr)
+    image_arr, photo_name = take_photo()
+    hsv(image_arr, photo_name)
+    git_push()
 
-def hsv(image):
+def hsv(image, path):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     height, width, _ = hsv_image.shape
-    midy, midx = height // 2, width // 2
-    quadrants = {
-        "Top-Left":     hsv_image[0:midy, 0:midx],
-        "Top-Right":    hsv_image[0:midy, midx:width],
-        "Bottom-Left":  hsv_image[midy:height, 0:midx],
-        "Bottom-Right": hsv_image[midy:height, midx:width]
+    quad_viz_hsv = np.zeros((height, width, 3), dtype=np.uint8)
+    cy, cx = height // 2, width // 2
+    slices = {
+        "Top-Left":     (slice(0, cy), slice(0, cx)),
+        "Top-Right":    (slice(0, cy), slice(cx, width)),
+        "Bottom-Left":  (slice(cy, height), slice(0, cx)),
+        "Bottom-Right": (slice(cy, height), slice(cx, width))
     }
-    for name, quad_data in quadrants.items():
+    for name, (slice_y, slice_x) in slices.items():
+        quad_data = hsv_image[slice_y, slice_x]
+        #gets data from one quadrant/slice
+
         avg_hsv = np.mean(quad_data, axis=(0, 1))
         h, s, v = avg_hsv
         hue_degrees = h * 2
@@ -124,6 +128,13 @@ def hsv(image):
         print(f"{name}:")
         print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
         print("-" * 30)
+
+        avg_hsv_int = avg_hsv.astype(np.uint8)
+        quad_viz_hsv[slice_y, slice_x] = avg_hsv_int
+
+        quad_viz_bgr = cv2.cvtColor(quad_viz_hsv, cv2.COLOR_HSV2BGR)
+        quad_path = path.replace(".jpg", "_quads.jpg")
+        cv2.imwrite(quad_path, quad_viz_bgr)
     
 
 
