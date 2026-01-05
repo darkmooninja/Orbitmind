@@ -123,6 +123,7 @@ def hsv(image):
         val_percent = (v / 255) * 100
         print(f"{name}:")
         print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
+        print("-" * 30)
     
 
 
