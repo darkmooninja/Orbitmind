@@ -88,13 +88,6 @@ def take_photo():
             image_array = picam2.capture_array("main")
 
 
-            hsv_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
-            avg_hsv = np.mean(hsv_image, axis=(0, 1))
-            h, s, v = avg_hsv
-            hue_degrees = h * 2
-            sat_percent = (s / 255) * 100
-            val_percent = (v / 255) * 100
-            print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
             
             image.save(photo_name)
             git_push()
@@ -102,14 +95,25 @@ def take_photo():
             picam2.stop()
             #PUSH PHOTO TO GITHUB
             time.sleep(1)  # debounce
-            break
+            return image_array
         
         #PAUSE
     picam2.stop()
 
 
 def main():
-    take_photo()
+    image_arr = take_photo()
+    hsv(image_arr)
+
+def hsv(image):
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    avg_hsv = np.mean(hsv_image, axis=(0, 1))
+    h, s, v = avg_hsv
+    hue_degrees = h * 2
+    sat_percent = (s / 255) * 100
+    val_percent = (v / 255) * 100
+    print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
+    
 
 
 if __name__ == '__main__':
