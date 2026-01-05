@@ -90,9 +90,11 @@ def take_photo():
 
             hsv_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
             avg_hsv = np.mean(hsv_image, axis=(0, 1))
-            h, s, v = avg_hsv
+            hue_degrees = h * 2
+            sat_percent = (s / 255) * 100
+            val_percent = (v / 255) * 100
+            print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
             
-            print(f"Average HSV - Hue: {h:.2f}, Saturation: {s:.2f}, Value: {v:.2f}")
             image.save(photo_name)
             git_push()
             print("picture done")
