@@ -90,6 +90,7 @@ def take_photo():
 
             hsv_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
             avg_hsv = np.mean(hsv_image, axis=(0, 1))
+            h, s, v = avg_hsv
             hue_degrees = h * 2
             sat_percent = (s / 255) * 100
             val_percent = (v / 255) * 100
