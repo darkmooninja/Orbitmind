@@ -37,7 +37,7 @@ picam2 = Picamera2()
 
 cell = 5
 ifcrater = 0.2
-ifwhite = 200
+white = 150
 
 
 def gray(image):
@@ -49,7 +49,7 @@ def gray(image):
     return image
 
 def grid_maker(image):
-    craters = gray(image) >= 200 #2D array of true, false depending on if the greyscale of the pixel is greater than white threshold
+    craters = gray(image) >= white #2D array of true, false depending on if the greyscale of the pixel is greater than white threshold
     h, w = craters.shape    #.shape gives tuple in this case the size of the image ex. (560, 560) pixels
     rows = h // cell    #floor diving the heights/width of the original grid by the cell ratio so it would be 1:5
     columns = w // cell
@@ -73,9 +73,11 @@ def grid_maker(image):
                 grid[r,c] = 1
     return grid
 
-def manhattan_distance(x,y):
-    #Manhattan value for pathfinding
-    return abs(x[0] - y[0]) + abs(x[1] - y[1])
+def chebyshev_distance(x,y):
+    #Chebyshev's distance for pathfinding in 8 directions
+    dx = abs(x[0] - y[0])
+    dy = abs(x[1] - y[1])
+    return max(dx, dy) 
 
 def free_pos(grid, pos):
     #Checks a radius around the initial position from left to right for a free cell if the initial start is a crater
@@ -109,8 +111,6 @@ def astar(grid, start_pos, end_pos):
 
     score = {start_pos:0} #tracks the moves we take format is {(x,y) , # of moves} #how far we have gone
 
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)] #valid directions, up,down,left,right
-
     while priority_queue:
         p, pos = heapq.heappop(priority_queue)
 
@@ -132,21 +132,27 @@ def astar(grid, start_pos, end_pos):
         
         r, c = pos
 
-        up = (r - 1, c)
-        down = (r + 1, c)
-        left = (r, c - 1)
-        right = (r, c + 1)
 
-        surround = [up, down, left, right] #these become coordinates of neighboring cells
+        surround = [
+                (r-1, c), (r+1, c), (r, c-1), (r, c+1),   # straight
+                (r-1, c-1), (r-1, c+1), (r+1, c-1), (r+1, c+1)  # diagonal
+                ] #these become coordinates of neighboring cells
 
-        for x, y in surround: #neightbor row and neighbor column, so it will run four times, up,down,left,right
+        for x, y in surround: #neightbor row and neighbor column, so it will run 8 times diagonals and straights
             if 0 <= x < rows and 0 <= y < col and grid[x, y] == 0: #checks if (x,y) is within the grid and then if it is a free space
-                new_score = score[pos] + 1 #records the new position alongs with its new score
+                if abs(x - r) + abs(y - c) == 2:   # diagonal move
+                    cost = 1.4   # approx sqrt(2)
+                    if grid[r, y] == 1 or grid[x, c] == 1:
+                        continue
+                else:
+                    cost = 1
+
+                new_score = score[pos] + cost #records the new position alongs with its new score
 
                 if (x, y) not in score or new_score < score[(x, y)]: #first checks if the neighboring cell has already been recorded, then checks if the score is better/less than the same cell
                     score[(x, y)] = new_score #adds the score to the position of the neighboring cell
 
-                    priority = new_score + manhattan_distance((x, y), end_pos)
+                    priority = new_score + chebyshev_distance((x, y), end_pos)
                     heapq.heappush(priority_queue, (priority, (x, y))) #adds the new neighboring position to the priority queue with its score and position
                     initialpath[(x, y)] = pos #Adds the pos to the initialpath
 
