@@ -192,6 +192,39 @@ def save_path_image(image, path, out_name):
 
     draw_img.save(out_name)
 
+def save_binary_map(grid, path, out_name):
+    rows, cols = grid.shape
+
+    # Create blank image (RGB so we can draw path later if needed)
+    img = Image.new("RGB", (cols * cell, rows * cell), (0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r, c] == 1:
+                color = (255, 255, 255)  # crater = white
+            else:
+                color = (0, 0, 0)        # safe = black
+
+            left = c * cell
+            top = r * cell
+            right = left + cell - 1
+            bottom = top + cell - 1
+
+            draw.rectangle([left, top, right, bottom], fill=color)
+
+    # OPTIONAL: draw path in green
+    if path is not None:
+        for r, c in path:
+            left = c * cell
+            top = r * cell
+            right = left + cell - 1
+            bottom = top + cell - 1
+
+            draw.rectangle([left, top, right, bottom], fill=(0, 255, 0))
+
+    img.save(out_name)
+
 
 def git_push():
     """
@@ -273,13 +306,28 @@ def test_take_photo():
             picam2.start()
             time.sleep(1)
             image = picam2.capture_image("main")
-            path = pathfinder(np.array(image))
+            # path = pathfinder(np.array(image))
+            # print(path)
+            # image.save(photo_name)
+
+            if path is not None: #Generates an image with the path mapped out on top
+                path_photo_name = img_gen("Test_path")
+                save_path_image(image, path, path_photo_name)
+
+#comment this
+            image_array = np.array(image)
+            grid = grid_maker(image_array)
+            path = pathfinder(image_array)
+
             print(path)
             image.save(photo_name)
 
-            if path is not None:
-                path_photo_name = img_gen("Test_path")
-                save_path_image(image, path, path_photo_name)
+            binary_name = img_gen("Binary_map")
+            save_binary_map(grid, path, binary_name)
+
+#comment this
+
+
 
             
             git_push()
