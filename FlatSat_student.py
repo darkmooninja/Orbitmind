@@ -71,7 +71,6 @@ def take_photo():
     This function is NOT complete. Takes a photo when the FlatSat is shaken.
     Replace psuedocode with your own code.
     """
-    picam2.start()
     while True:
         accel_x, accel_y, accel_z = accel_gyro.acceleration
         magnitude = (accel_x**2 + accel_y**2 + accel_z**2) ** 0.5
@@ -83,59 +82,53 @@ def take_photo():
             name = "Test"
             photo_name = img_gen(name)
 
-
+            picam2.start()
             image = picam2.capture_image("main")
-            image_array = picam2.capture_array("main")
-
-
-            
             image.save(photo_name)
+
+            ShadowMap(image)
+            
+            git_push()
             print("picture done")
             picam2.stop()
             #PUSH PHOTO TO GITHUB
+
+            
             time.sleep(1)  # debounce
-            return image_array, photo_name
+            break
         
         #PAUSE
-    picam2.stop()
+def test_take_photo():
+    print("Test Mode: Click 'Space' then 'Enter' to take a photo")
+    while True:
+        key = input()
+        if key == " ":
+            print("SPACE")
+            name = "Test"
+            photo_name = img_gen(name)
+
+            picam2.start()
+            time.sleep(1)
+            image = picam2.capture_image("main")
+            image.save(photo_name)
+
+            
+            git_push()
+            print("picture done")
+            picam2.stop()
+            #PUSH PHOTO TO GITHUB
+
+            
+            time.sleep(1)  #debounce
+        elif key.lower() == "q":
+            print("Exiting test mode")
+            break
+
 
 
 def main():
-    image_arr, photo_name = take_photo()
-    hsv(image_arr, photo_name)
-    git_push()
-
-def hsv(image, path):
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    height, width, _ = hsv_image.shape
-    quad_viz_hsv = np.zeros((height, width, 3), dtype=np.uint8)
-    cy, cx = height // 2, width // 2
-    slices = {
-        "Top-Left":     (slice(0, cy), slice(0, cx)),
-        "Top-Right":    (slice(0, cy), slice(cx, width)),
-        "Bottom-Left":  (slice(cy, height), slice(0, cx)),
-        "Bottom-Right": (slice(cy, height), slice(cx, width))
-    }
-    for name, (slice_y, slice_x) in slices.items():
-        quad_data = hsv_image[slice_y, slice_x]
-        #gets data from one quadrant/slice
-
-        avg_hsv = np.mean(quad_data, axis=(0, 1))
-        h, s, v = avg_hsv
-        hue_degrees = h * 2
-        sat_percent = (s / 255) * 100
-        val_percent = (v / 255) * 100
-        print(f"{name}:")
-        print(f"Color: {hue_degrees:.1f}°, Saturation: {sat_percent:.1f}%, Brightness: {val_percent:.1f}%")
-        print("-" * 30)
-
-        avg_hsv_int = avg_hsv.astype(np.uint8)
-        quad_viz_hsv[slice_y, slice_x] = avg_hsv_int
-
-        quad_viz_bgr = cv2.cvtColor(quad_viz_hsv, cv2.COLOR_HSV2BGR)
-        quad_path = path.replace(".jpg", "_quads.jpg")
-        cv2.imwrite(quad_path, quad_viz_bgr)
-    
+    #take_photo()           #Comment for testing with movement
+    test_take_photo()       #Comment for Testing with Keyboard Input
 
 
 if __name__ == '__main__':
