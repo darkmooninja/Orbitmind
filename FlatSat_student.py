@@ -274,6 +274,7 @@ def test_take_photo():
             
             git_push()
             print("picture done")
+            print("Click q to exit test")
             picam2.stop()
             #PUSH PHOTO TO GITHUB
 
