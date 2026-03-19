@@ -247,7 +247,7 @@ def test_take_photo():
             picam2.start()
             time.sleep(1)
             image = picam2.capture_image("main")
-            path = pathfinder(image)
+            path = pathfinder(np.array(image))
             print(path)
             image.save(photo_name)
 
