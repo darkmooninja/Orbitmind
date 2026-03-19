@@ -327,7 +327,7 @@ def test_take_photo():
                 path_photo_name = img_gen("Test_path")
                 save_path_image(image, path, path_photo_name)
 
-
+#
 
             
             git_push()
