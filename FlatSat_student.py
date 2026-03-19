@@ -310,9 +310,6 @@ def test_take_photo():
             # print(path)
             # image.save(photo_name)
 
-            if path is not None: #Generates an image with the path mapped out on top
-                path_photo_name = img_gen("Test_path")
-                save_path_image(image, path, path_photo_name)
 
 #comment this
             image_array = np.array(image)
@@ -326,6 +323,9 @@ def test_take_photo():
             save_binary_map(grid, path, binary_name)
 
 #comment this
+            if path is not None: #Generates an image with the path mapped out on top
+                path_photo_name = img_gen("Test_path")
+                save_path_image(image, path, path_photo_name)
 
 
 
