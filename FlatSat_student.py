@@ -22,6 +22,7 @@ from adafruit_lsm6ds.lsm6dsox import LSM6DSOX as LSM6DS
 from adafruit_lis3mdl import LIS3MDL
 from git import Repo
 from picamera2 import Picamera2
+from PIL import Image, ImageDraw
 
 #VARIABLES
 THRESHOLD = 4      #Any desired value from the accelerometer
@@ -171,6 +172,21 @@ def pathfinder(image):
     return final_path
 
 
+def save_path_image(image, path, out_name):
+    draw_img = image.copy()
+    draw = ImageDraw.Draw(draw_img)
+
+    for r, c in path:
+        left = c * cell
+        top = r * cell
+        right = left + cell - 1
+        bottom = top + cell - 1
+
+        draw.rectangle([left, top, right, bottom], fill=(0, 255, 0))
+
+    draw_img.save(out_name)
+
+
 def git_push():
     """
     This function is complete. Stages, commits, and pushes new images to your GitHub repo.
@@ -223,6 +239,10 @@ def take_photo():
             path = pathfinder(np.array(image))
             print(path)
             image.save(photo_name)
+
+            if path is not None:
+                path_photo_name = img_gen("Test_path")
+                save_path_image(image, path, path_photo_name)
 
             
             git_push()
