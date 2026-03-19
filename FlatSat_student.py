@@ -37,7 +37,7 @@ picam2 = Picamera2()
 
 cell = 5
 ifcrater = 0.2
-white = 180
+white = 190
 
 
 def gray(image):
@@ -308,7 +308,7 @@ def test_take_photo():
             image = picam2.capture_image("main")
             # path = pathfinder(np.array(image))
             # print(path)
-            image.save(photo_name)
+            # image.save(photo_name)
 
 
 #comment this
@@ -317,7 +317,7 @@ def test_take_photo():
             path = pathfinder(image_array)
 
             print(path)
-            image.save(photo_name)
+            # image.save(photo_name)
 
             binary_name = img_gen("Binary_map")
             save_binary_map(grid, path, binary_name)
