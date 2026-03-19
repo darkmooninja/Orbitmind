@@ -37,7 +37,7 @@ picam2 = Picamera2()
 
 cell = 5
 ifcrater = 0.2
-white = 150
+white = 180
 
 
 def gray(image):
