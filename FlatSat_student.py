@@ -41,11 +41,10 @@ white = 190
 
 
 def gray(image):
-    # If image is RGB
     if len(image.shape) == 3:
-        return (0.299 * image[:, :, 0] +
-                0.587 * image[:, :, 1] +
-                0.114 * image[:, :, 2]).astype(np.uint8) #converts the floats in to 0-255 integers and wraps if it overflows
+        return (0.299 * image[:, :, 0] + 0.587 * image[:, :, 1] + 0.114 * image[:, :, 2]).astype(np.uint8) 
+        # .astype(np.uint8)  converts the floats in to 0-255 integers and wraps if it overflows
+
     return image
 
 def grid_maker(image):
@@ -71,7 +70,26 @@ def grid_maker(image):
             
             if cnt/chunk.size >= ifcrater:
                 grid[r,c] = 1
-    return grid
+
+
+    """
+    Will cover areas around the crater so its not directly on the edge. Rovers can't go on the edges of craters so its
+    better to avoid it entirely
+    """
+    radius = 2
+    edge_grid = grid.copy()
+
+    for r in range(rows):
+        for c in range(columns):
+            #Nested for loops going through grid
+            if grid[r, c] == 1: #if pos has a crater
+                for dr in range(-radius, radius + 1): #it will mark the values around the initial crater pos as 1, or obstacles
+                    for dc in range(-radius, radius + 1):
+                        if dr*dr + dc*dc <= radius*radius: # x^2 + y ^2 <= r^2, creates a circular obstacle around the crater pos
+                            if 0 <= r + dr < rows and 0 <= c + dc < columns: #prevents index error
+                                edge_grid[r+dr, c+dc] = 1 #sets the neighboring cells as obstacles
+
+    return edge_grid
 
 def chebyshev_distance(x,y):
     #Chebyshev's distance for pathfinding in 8 directions
@@ -193,18 +211,17 @@ def save_path_image(image, path, out_name):
     draw_img.save(out_name)
 
 def save_binary_map(grid, path, out_name):
-    rows, cols = grid.shape
+    rows, col = grid.shape
 
-    # Create blank image (RGB so we can draw path later if needed)
-    img = Image.new("RGB", (cols * cell, rows * cell), (0, 0, 0))
+    img = Image.new("RGB", (col * cell, rows * cell), (0, 0, 0))
     draw = ImageDraw.Draw(img)
 
     for r in range(rows):
-        for c in range(cols):
+        for c in range(col):
             if grid[r, c] == 1:
-                color = (255, 255, 255)  # crater = white
+                color = (255, 255, 255) 
             else:
-                color = (0, 0, 0)        # safe = black
+                color = (0, 0, 0)      
 
             left = c * cell
             top = r * cell
@@ -213,7 +230,6 @@ def save_binary_map(grid, path, out_name):
 
             draw.rectangle([left, top, right, bottom], fill=color)
 
-    # OPTIONAL: draw path in green
     if path is not None:
         for r, c in path:
             left = c * cell
