@@ -43,11 +43,12 @@ white = 190
 def gray(image):
     if len(image.shape) == 3:
         return (0.299 * image[:, :, 0] + 0.587 * image[:, :, 1] + 0.114 * image[:, :, 2]).astype(np.uint8) 
-        # .astype(np.uint8)  converts the floats in to 0-255 integers and wraps if it overflows
+        # .astype(np.uint8) converts the floats in to 0-255 integers and wraps if it overflows
 
-    return image
+    return image 
 
-def grid_maker(image):
+
+def grid_maker(image): 
     craters = gray(image) >= white #2D array of true, false depending on if the greyscale of the pixel is greater than white threshold
     h, w = craters.shape    #.shape gives tuple in this case the size of the image ex. (560, 560) pixels
     rows = h // cell    #floor diving the heights/width of the original grid by the cell ratio so it would be 1:5
@@ -101,8 +102,10 @@ def free_pos(grid, pos):
     #Checks a radius around the initial position from left to right for a free cell if the initial start is a crater
     if grid[pos[0], pos[1]] == 0:
         return pos
+    
 
-    rows, col = grid.shape
+  
+    rows, col = grid.shape #96,96
     #starts at one cell from the initial position and increases as it loops
     for radius in range(1, max(rows, col)):
         #Checks top left to bottom right of the radius
