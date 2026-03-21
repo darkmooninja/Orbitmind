@@ -314,11 +314,11 @@ def take_photo():
         
         #PAUSE
 def test_take_photo():
-    print("Test Mode: Click 'Space' then 'Enter' to take a photo")
+    print("Ready")
     while True:
         key = input()
         if key == " ":
-            print("SPACE")
+            print("Movement Detected")
             name = "Test"
             photo_name = img_gen(name)
 
